@@ -1,0 +1,19 @@
+{
+  "dependencies": {
+    "express": "^5.2.1",
+    "undici": "^7.25.0"
+  },
+  "name": "privacy-guard-interceptor",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node --env-file=.env server.js",
+    "generate": "node data-generator.js",
+    "test": "node --test \"src/**/*.test.js\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "type": "module"
+}
