@@ -58,7 +58,31 @@ export function createStore({ capacity = DEFAULT_CAPACITY } = {}) {
     return () => subscribers.delete(callback);
   }
 
-  return { record, getSnapshot, subscribe };
+  /**
+   * Broadcast anomaly alerts to all subscribers.
+   * @param {Array} anomalyAlerts - Array of anomaly alert objects
+   */
+  function broadcastAnomalyAlerts(anomalyAlerts) {
+    if (!Array.isArray(anomalyAlerts) || anomalyAlerts.length === 0) {
+      return;
+    }
+    
+    // Snapshot the subscriber set
+    for (const cb of [...subscribers]) {
+      try {
+        // Call with a special event type that clients can differentiate
+        cb({
+          _type: 'anomaly_alert',
+          timestamp: Date.now(),
+          alerts: anomalyAlerts,
+        });
+      } catch (err) {
+        console.warn("[Dashboard store] subscriber threw during anomaly broadcast:", err.message);
+      }
+    }
+  }
+
+  return { record, getSnapshot, subscribe, broadcastAnomalyAlerts };
 }
 
 export const store = createStore();
