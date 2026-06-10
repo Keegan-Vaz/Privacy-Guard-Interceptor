@@ -21,7 +21,14 @@ export function createDashboardRouter(store, htmlPath) {
     res.write(`: connected\n\n`);
 
     const unsubscribe = store.subscribe((entry) => {
-      res.write(`data: ${JSON.stringify(entry)}\n\n`);
+      // Check if this is an anomaly alert (has _type field)
+      if (entry._type === 'anomaly_alert') {
+        // Send as anomaly_alert event type
+        res.write(`event: anomaly_alert\ndata: ${JSON.stringify(entry)}\n\n`);
+      } else {
+        // Regular log entry
+        res.write(`data: ${JSON.stringify(entry)}\n\n`);
+      }
     });
     const heartbeat = setInterval(() => {
       res.write(`: keepalive\n\n`);

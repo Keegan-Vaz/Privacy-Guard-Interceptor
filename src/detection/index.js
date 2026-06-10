@@ -7,7 +7,7 @@ import { maxSeverity } from "./severity.js";
 
 export async function detectPII(message) {
   const llmStart = performance.now();
-  const llmPromise = llmDetector(message, config.gemini).then((result) => ({
+  const llmPromise = llmDetector(message, config.ollama).then((result) => ({
     result,
     ms: performance.now() - llmStart,
   }));

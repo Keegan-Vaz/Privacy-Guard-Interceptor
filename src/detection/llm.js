@@ -23,22 +23,23 @@ Input: "Healthcheck OK; uptime 14d 3h 22m."
 Output: {"findings": []}`;
 
 export async function llmDetector(message, options) {
-  const { apiKey, model, timeoutMs } = options;
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const { url, model, timeoutMs } = options;
+  const endpoint = `${url}/api/chat`;
 
   let response;
   try {
-    response = await fetch(url, {
+    response = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       signal: AbortSignal.timeout(timeoutMs),
       body: JSON.stringify({
-        system_instruction: { parts: { text: SYSTEM_PROMPT } },
-        contents: [{ parts: [{ text: message }] }],
-        generationConfig: {
-          response_mime_type: "application/json",
-          temperature: 0.0,
-        },
+        model,
+        stream: false,
+        format: "json",
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          { role: "user", content: message },
+        ],
       }),
     });
   } catch (error) {
@@ -57,7 +58,7 @@ export async function llmDetector(message, options) {
     return { findings: [], error: "malformed_response" };
   }
 
-  const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+  const rawText = data?.message?.content;
   if (!rawText) {
     return { findings: [], error: "empty_response" };
   }
